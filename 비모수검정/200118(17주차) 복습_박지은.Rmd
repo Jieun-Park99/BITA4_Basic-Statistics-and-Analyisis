@@ -1,0 +1,85 @@
+---
+title: "hw17"
+author: "박지은"
+date: '2020 1 24 '
+output: html_document
+---
+## 1번
+```{r}
+A_x1=c(51.4, 52.0, 45.5, 54.5, 52.3, 50.9, 52.7, 50.3, 53.8, 53.1)
+A_x2=c(50.1, 51.5, 45.9, 53.1, 51.8, 50.3, 52.0, 49.9, 52.5, 53.0)
+B_x1=c(38.9, 61.2, 73.3, 21.8, 63.4, 64.6, 48.4, 48.8, 48.5)
+B_x2=c(67.8, 60, 63.4, 76, 89.4, 73.3, 67.3)
+
+# 1_1
+shapiro.test(A_x1)
+shapiro.test(A_x2)
+shapiro.test(B_x1)
+shapiro.test(B_x2)
+#A_x2를 제외한 세 데이터 셋은 모두 유의수준 0.05보다 크므로 기각하지 않는다. 따라서 정규성 가정을 만족한다.
+
+# 1_2
+t.test(A_x1)
+# 기각한다.
+t.test(A_x2)
+# 기각한다.
+t.test(B_x1)
+# 기각한다.
+t.test(B_x2)
+# 기각한다.
+
+# 1_3
+# A는 쌍을 이루므로 signed rank test를 사용한다.
+# B는 쌍을 이루지 않으므로 Rank Sum Test를 사용한다.
+
+# 1_4
+d = A_x2 - A_x1
+T = length(d[d>0])
+binom.test(T, length(d[d!=0]), alternative="greater")
+
+library(exactRankTests)
+wilcox.exact(B_x1, B_x2, paired=FALSE, alternative="greater")
+
+```
+
+## 2번
+```{r}
+A = c(156,183,120,113,138,145,142)
+B = c(109,107,119,162,121,123,76,111,130,115)
+
+R = 15000          #Permuted test sample의 size를지정한다.
+all = c(A,B)       #A와 B를 하나의 벡터로 합쳐준다.
+k = 1:length(all)  #합친 벡터의 인덱스를 설정해준다.
+reps = numeric(R)  #Permuted test의 통계량을 담을 객체를 생성한다.
+ts = mean(A) - mean(B) #검정 통계량의 값을 계산해준다.
+ts
+
+for (i in 1:R) {
+  m = sample(k, size=length(A), replace=F)
+  a1 = all[m]
+  b1 = all[-m]
+  reps[i] = mean(a1) - mean(b1)
+}
+
+pvalue = mean(c(ts, reps) >= ts)
+pvalue
+
+#유의수준 0.05보다 작으므로 기각한다.
+
+```
+
+## 3번
+```{r}
+dat=c(23.3, 26.1, 19.0, 28.8, 29.0)
+dat
+
+bootmean = c()
+for (i in 1:1000){
+  bootsample = sample(dat, size=length(dat), replace=TRUE)
+  bootmean[i] = mean(bootsample)
+}
+bootmean
+mean(bootmean)
+mean(dat)
+#거의 비슷하다
+```
